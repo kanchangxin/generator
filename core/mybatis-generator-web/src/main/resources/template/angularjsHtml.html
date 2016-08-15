@@ -1,0 +1,109 @@
+<br>
+<br>
+<br>
+<br>
+<div class="container">
+    <div class="content">
+        <h1>页面标题</h1>
+        <div>
+            <#list DomainObjectPropertys as col>
+                <#if col.getJavaProperty()!="id">
+                <input type="text" placeholder="${col.getRemarks()}" ng-model="${col.getJavaProperty()}"/>
+                </#if>
+            </#list>
+
+
+            <button id="btn-query" type="button" class="btn btn-primary " ng-click="getList()">查询</button>
+            <button id="btn-create" type="button" class="btn btn-primary " ng-click="createItem()"
+                    data-toggle="modal" data-target="#myModal">新增
+            </button>
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <#list DomainObjectPropertys as col>
+                    <#if col.getJavaProperty()!="id">
+                    <th>${col.getRemarks()}</th>
+                     </#if>
+                </#list>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in modelEntrys.list  track by $index">
+                <th scope="row">{{$index+1}}</th>
+                <#list DomainObjectPropertys as col>
+                    <#assign type=col.getJdbcTypeName()>
+                    <#if  type=="BIGINT">
+                        <td>{{item.${col.getJavaProperty()}|date:'yyyy-MM-dd hh:mm:ss'}}</td>
+                        <#else>
+                        <td>{{item.${col.getJavaProperty()}}}</td>
+                    </#if>
+                </#list>
+
+                <td><a href="javascript:void(0);" ng-click="del(item)">删除</a>
+                    <a href="javascript:void(0);" ng-click="mdfItem(item)" data-toggle="modal" data-target="#myModal">修改</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <paper value="modelEntrys" curp="currentpage" change-page="getList(para)"></paper>
+    </div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<!-- 新增 Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">新增/修改</h4>
+            </div><!-- /modal-header -->
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <#list DomainObjectPropertys as col>
+                        <#if col.getJavaProperty()!="id">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">${col.getRemarks()}</label>
+                            <div class="col-sm-10">
+                                <input type="text" rows="5"  class="form-control" placeholder="请输入${col.getRemarks()}" ng-model="item.${col.getJavaProperty()}"/> <br>
+                            </div>
+                        </div>
+                         </#if>
+                    </#list>
+
+                    <!--
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">执业开始时间</label>
+                        <div class="col-sm-10">
+                            <input id="fromDate" type="text" onClick="WdatePicker()" ng-model="item.fromDate"  onChange=""/>
+                        </div>
+                    </div>
+                    -->
+                </form>
+            </div><!-- /.modal-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <span ng-show="item.id==undefined">
+                    <button type="button" class="btn btn-primary" ng-click="add(true)">保存</button>
+                    <button type="button" class="btn btn-primary" ng-click="add()">保存并继续</button>
+                </span>
+                <span ng-show="item.id!=undefinde">
+                    <button type="button" class="btn btn-primary" ng-click="upd()">保存</button>
+                 </span>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

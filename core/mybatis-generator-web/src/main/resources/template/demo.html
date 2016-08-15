@@ -1,0 +1,125 @@
+日期查询demo==============================================================================
+
+
+<input id="createDateB" class="Wdate" type="text"   onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'createDateE\')||\'2020-10-01\'}'})" style="width:100px"/>
+~ <input id="createDateE" class="Wdate" type="text"   onFocus="WdatePicker({minDate:'#F{$dp.$D(\'createDateB\')}',maxDate:'2020-10-01'})" style="width:100px"/>
+
+<td>{{item.lastModDate|date:'yyyy-MM-dd hh:mm:ss'}}</td>
+
+<script>
+
+    /**
+     * 验证参数正确性和返回相关参数对象
+     * @returns {*}
+     */
+    $scope.verifyAndGetDate=function( ){
+        if ($scope.trademarkId == undefined) {
+            $rootScope.toastInfo("必须选择品牌");
+            return false;
+        }
+        if ($('#createDateB').val().trim().length == 0 || $('#createDateE').val().trim().length == 0) {
+            $rootScope.toastInfo("必须有起止日期");
+            return false;
+        }
+
+        var data = {
+            trademarkId: $scope.trademarkId,
+            createDateB: new Date( $('#createDateB').val()+' 00:00:00').getTime(),
+            createDateE: new Date( $('#createDateE').val()+' 23:59:59').getTime()
+
+
+        };
+
+        return data;
+    }
+</script>
+
+日期修改demo==============================================================================
+<div class="form-group">
+    <label class="col-sm-2 control-label">执业开始时间</label>
+    <div class="col-sm-10">
+        <input id="fromDate" type="text" onClick="WdatePicker()" ng-model="item.fromDate"  onChange=""/> <!-- onChange="" 必须保留，否则angularjs 无知-->
+    </div>
+</div>
+<script>
+    //从后台显示时进行转码
+    $scope.mdfItem = function (item) {
+        //显示的时候把毫秒转为日期格式，不能用ng-model="fromDate|data:'yyyy-mm-dd' 形式，会报错（但似乎不影响使用）
+        var newTime = new Date(item.fromDate);
+        //item.fromDate=newTime.getFullYear()+"-"+(newTime.getMonth()+1)+"-"+newTime.getDate();
+        item.fromDate=newTime.toLocaleDateString('cn-ZH', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\//g, '-');
+
+        $scope.item = item;
+    }
+</script>
+
+
+地区下拉demo==============================================================================
+<div class="form-group">
+    <label class="col-sm-2 control-label">地址</label>
+    <div class="col-sm-10">
+        省：
+        <select id="sheng" style="min-width:142px"  ng-model="item.sheng" ng-options="(p.code+'-'+p.name)  as p.name  for p in shengList" ng-change="changeSheng()">
+            <option value="">--请选择--</option>
+        </select>
+        市：
+        <select id="shi" style="min-width:150px" ng-model="item.shi" ng-options="(p.code+'-'+p.name)  as p.name   for p in shiList" ng-change="changeShi()">
+            <option value="">--请选择--</option>
+        </select>
+
+        <!-- 区/县：<select id="qu" style="min-width:150px" ng-model="xian" ng-options="p.code as p.name  for p in xianList"  ></select>-->
+    </div>
+</div>
+
+<script>
+
+    //初始化省
+    $scope.initSheng=function(){
+        Apis.getShengList().then(function (res) {
+            if (res.length == 0)
+                $rootScope.toastInfo("没有符合查询条件省的数据");
+            else{
+                $scope.shengList = res;
+                //$scope.shengList.push({code:"all",name:"请选择"});
+                // $scope.item.sheng="all";//默认选择全部
+            }
+
+        }, function (res) {
+            $rootScope.toastError(res.msg);
+        });
+    }
+    //更改省
+    $scope.changeSheng=function( ){
+        Apis.getShiList().then(function (res) {
+            if (res.length == 0 )
+                $rootScope.toastInfo("没有符合查询条件城市的数据");
+            else{
+                $scope.shiList= res[$scope.item.sheng.split('-')[0]];
+                //$scope.shiList.push({code:"all",name:"请选择"});
+                //$scope.item.shi="all";//默认选择全部
+            }
+
+        }, function (res) {
+            $rootScope.toastError(res.msg);
+        });
+        $scope.xianList=undefined;//重置县的选择
+    }
+    //更改市
+    $scope.changeShi=function(){
+        Apis.getXianList().then(function (res) {
+            if (res.length == 0 )
+                $rootScope.toastInfo("没有符合查询条件县的数据");
+            else{
+                $scope.xianList= res[$scope.item.shi];
+                $scope.xian="";//默认选择全部
+            }
+
+        }, function (res) {
+            $rootScope.toastError(res.msg);
+        });
+    }
+</script>

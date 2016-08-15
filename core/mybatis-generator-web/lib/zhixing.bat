@@ -1,0 +1,1 @@
+java  -jar  mybatis-generator-core-1.3.3-SNAPSHOT.jar -configfile  ../src/main/resources/mbgConfiguration.xml -overwrite

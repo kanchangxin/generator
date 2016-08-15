@@ -248,6 +248,9 @@
     <module>mybatis-generator-systests-mybatis3</module>
     <module>mybatis-generator-systests-ibatis2-java2</module>
     <module>mybatis-generator-systests-ibatis2-java5</module>
+    <module>mybatis-generator-web</module>
+
+
   </modules>
 
   <profiles>
